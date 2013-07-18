@@ -1,7 +1,7 @@
 rpi-reddit-mail
 ===============
 
-A [reddit](https://www.reddit.com) mail notifier for the Raspberry Pi
+A [reddit](https://www.reddit.com) mail notifier for the Raspberry Pi. Works both for private messages and replies to your own posts.
 
 
 Usage
