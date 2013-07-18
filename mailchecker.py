@@ -43,30 +43,32 @@ def main():
         logger.warn('Failed to connect to reddit. Message: %s' % re.message)
         sys.exit(1)
     while True:
-        # Reddit is caching pages for 30s, so no need to request more often than that
-        time.sleep(45)
-        logger.debug('Fetching data about myself')
         try:
-            r = session.get('https://ssl.reddit.com/api/me.json')
-        except requests.exceptions.RequestException as re:
-            logger.warn('Failed to fetch me.json. error: %s' % re.message)
-            continue
-
-        if r.status_code == 200:
+            # Reddit is caching pages for 30s, so no need to request more often than that
+            time.sleep(45)
+            logger.debug('Fetching data about myself')
             try:
-                request_as_json = r.json()
-                has_mail = request_as_json['data']['has_mail']
-                switchLight(has_mail)
-                if has_mail:
-                    logger.info('New mail arrived!')
-            except Exception as e:
-                logger.warn('Unexpected error while trying to parse json. Type: %s, Message: %s' % e.__class__,
-                            e.message)
-        else:
-            logger.warn('Status code was not 200 it was [%s]' % r.status_code)
+                r = session.get('https://ssl.reddit.com/api/me.json')
+            except requests.exceptions.RequestException as re:
+                logger.warn('Failed to fetch me.json. error: %s' % re.message)
+                continue
 
-    # Clean up (resetting those GPIO's that got used in this script)
-    GPIO.cleanup()
+            if r.status_code == 200:
+                try:
+                    request_as_json = r.json()
+                    has_mail = request_as_json['data']['has_mail']
+                    switchLight(has_mail)
+                    if has_mail:
+                        logger.info('New mail arrived!')
+                except Exception as e:
+                    logger.warn('Unexpected error while trying to parse json. Type: %s, Message: %s' % e.__class__,
+                                e.message)
+            else:
+                logger.warn('Status code was not 200 it was [%s]' % r.status_code)
+        except (KeyboardInterrupt, SystemExit):
+            # Clean up (resetting those GPIO's that got used in this script)
+            GPIO.cleanup()
+            break
 
 
 if __name__ == "__main__":
